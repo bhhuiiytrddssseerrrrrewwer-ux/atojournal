@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #6b7280;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Trade row hover effects */
+.trade-row:hover {
+  background-color: #374151;
+}
+
+.trade-row.selected {
+  background-color: #1e40af;
+}
+
+/* Mood tag styles */
+.mood-tag {
+  @apply inline-block px-2 py-1 text-xs rounded-full mr-1 mb-1 cursor-pointer transition-colors;
+}
+
+.mood-tag.selected {
+  @apply bg-blue-600 text-white;
+}
+
+.mood-tag:not(.selected) {
+  @apply bg-gray-700 text-gray-300 hover:bg-gray-600;
+}
+
+/* Animation for pulse effect */
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
