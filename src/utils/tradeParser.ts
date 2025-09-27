@@ -258,7 +258,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   let runningBalance = 1000; // Assume starting balance
   let peak = runningBalance;
   let maxDrawdown = 0;
-  let maxDrawdownPercent = 0;
+  let maximalDrawdownPercentValue = 0;
   
   sortedTrades.forEach(trade => {
     runningBalance += trade.profit;
@@ -270,8 +270,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
     
     if (drawdown > maxDrawdown) {
       maxDrawdown = drawdown;
-      maxDrawdownPercent = drawdownPercent;
-      maxDrawdownPercent = drawdownPercent;
+      maximalDrawdownPercentValue = drawdownPercent;
     }
   });
   
@@ -369,8 +368,8 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
     expectedPayoff,
     absoluteDrawdown: maxDrawdown,
     maximalDrawdown: maxDrawdown,
-    maximalDrawdownPercent,
-    relativeDrawdown: maxDrawdownPercent,
+    maximalDrawdownPercent: maximalDrawdownPercentValue,
+    relativeDrawdown: maximalDrawdownPercentValue,
     relativeDrawdownAmount: maxDrawdown,
     shortPositions: shortTrades.length,
     shortWinRate: shortTrades.length > 0 ? (shortWinningTrades.length / shortTrades.length) * 100 : 0,
