@@ -31,6 +31,10 @@ const Settings: React.FC<SettingsProps> = ({ isUploading, progress, error, onFil
             onSelectTrade={selectTrade}
             onExportTrades={() => {}}
             onClearTrades={clearTrades}
+            onUpdateTrade={(trade) => {
+              // This would need to be passed from parent or use context
+              console.log('Update trade:', trade);
+            }}
           />
         </div>
       )}

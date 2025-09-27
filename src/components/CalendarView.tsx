@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTradeContext } from '../context/TradeContext';
 import Modal from './Modal';
 import { formatRR, recomputeRRFields } from '../utils/tradeParser';
+import TradeRowExpander from './TradeRowExpander';
 
 function formatDateKey(d: Date): string {
   const y = d.getFullYear();
@@ -86,82 +87,25 @@ const DayTradesList: React.FC<{ dayKey: string }> = ({ dayKey }) => {
   const trades = useMemo(() => {
     return state.trades.filter(t => t.open_time.startsWith(dayKey));
   }, [state.trades, dayKey]);
+  
   return (
     <div>
       <div className="text-sm text-gray-400 mb-2">Trades on {dayKey}: {trades.length}</div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-800 text-gray-300">
-            <tr>
-              <th className="text-left px-3 py-2">Time</th>
-              <th className="text-left px-3 py-2">Symbol</th>
-              <th className="text-right px-3 py-2">Type</th>
-              <th className="text-right px-3 py-2">Size</th>
-              <th className="text-right px-3 py-2">P&L</th>
-              <th className="text-right px-3 py-2">Planned R:R</th>
-              <th className="text-right px-3 py-2">Realized R:R</th>
-              <th className="text-right px-3 py-2">SL</th>
-              <th className="text-right px-3 py-2">TP</th>
-              <th className="text-left px-3 py-2">Mood</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trades.map(t => (
-              <tr key={t.ticket} className="odd:bg-gray-900 even:bg-gray-800">
-                <td className="px-3 py-2">{new Date(t.open_time).toLocaleTimeString()}</td>
-                <td className="px-3 py-2">{t.symbol}</td>
-                <td className="px-3 py-2 text-right">{t.type}</td>
-                <td className="px-3 py-2 text-right">{t.lot_size}</td>
-                <td className={`px-3 py-2 text-right ${t.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>${t.profit.toFixed(2)}</td>
-                <td className="px-3 py-2 text-right">{formatRR(t.planned_risk_reward)}</td>
-                <td className="px-3 py-2 text-right">{formatRR(t.realized_risk_reward)}</td>
-                <td className="px-3 py-2 text-right">
-                  <InlineNumberEdit
-                    value={t.stop_loss}
-                    onChange={(v) => {
-                      const updated = recomputeRRFields({ ...t, stop_loss: v });
-                      updateTrade(updated);
-                    }}
-                  />
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <InlineNumberEdit
-                    value={t.take_profit}
-                    onChange={(v) => {
-                      const updated = recomputeRRFields({ ...t, take_profit: v });
-                      updateTrade(updated);
-                    }}
-                  />
-                </td>
-                <td className="px-3 py-2">{t.journal?.mood?.tags?.join(', ')}</td>
-              </tr>
-            ))}
-            {trades.length === 0 && (
-              <tr>
-                <td colSpan={9} className="px-3 py-6 text-center text-gray-400">No trades for this day.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="space-y-1">
+        {trades.map(trade => (
+          <TradeRowExpander
+            key={trade.ticket}
+            trade={trade}
+            onUpdateTrade={updateTrade}
+          />
+        ))}
+        {trades.length === 0 && (
+          <div className="px-3 py-6 text-center text-gray-400">No trades for this day.</div>
+        )}
       </div>
     </div>
   );
 };
 
-const InlineNumberEdit: React.FC<{ value?: number; onChange: (v?: number) => void }> = ({ value, onChange }) => {
-  const [val, setVal] = React.useState<string>(value !== undefined ? String(value) : '');
-  return (
-    <input
-      className="w-24 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200"
-      value={val}
-      onChange={(e) => setVal(e.target.value)}
-      onBlur={() => {
-        const num = parseFloat(val);
-        onChange(isNaN(num) ? undefined : num);
-      }}
-      placeholder="—"
-    />
-  );
-};
 
 

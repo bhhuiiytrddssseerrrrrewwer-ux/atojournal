@@ -115,8 +115,9 @@ const SymbolRow: React.FC<{ row: { symbol: string; trades: number; pnl: number; 
 };
 
 import Modal from './Modal';
+import TradeRowExpander from './TradeRowExpander';
 const SymbolModal: React.FC<{ symbol: string; open: boolean; onClose: () => void }> = ({ symbol, open, onClose }) => {
-  const { state } = useTradeContext();
+  const { state, updateTrade } = useTradeContext();
   const trades = React.useMemo(() => state.trades.filter(t => t.symbol === symbol), [state.trades, symbol]);
   const byDay = React.useMemo(() => {
     const map: Record<string, number> = {};
@@ -130,27 +131,16 @@ const SymbolModal: React.FC<{ symbol: string; open: boolean; onClose: () => void
     <Modal isOpen={open} onClose={onClose} title={`Trades for ${symbol}`}>
       <div className="mb-4 text-sm text-gray-400">Total Trades: {trades.length}</div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="overflow-x-auto border border-gray-700 rounded-lg">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-800 text-gray-300">
-              <tr>
-                <th className="text-left px-3 py-2">Date</th>
-                <th className="text-right px-3 py-2">Type</th>
-                <th className="text-right px-3 py-2">Size</th>
-                <th className="text-right px-3 py-2">P&L</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trades.map(t => (
-                <tr key={t.ticket} className="odd:bg-gray-900 even:bg-gray-800">
-                  <td className="px-3 py-2">{new Date(t.open_time).toLocaleString()}</td>
-                  <td className="px-3 py-2 text-right">{t.type}</td>
-                  <td className="px-3 py-2 text-right">{t.lot_size}</td>
-                <td className={`px-3 py-2 text-right ${t.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>${t.profit.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="border border-gray-700 rounded-lg">
+          <div className="space-y-1">
+            {trades.map(trade => (
+              <TradeRowExpander
+                key={trade.ticket}
+                trade={trade}
+                onUpdateTrade={updateTrade}
+              />
+            ))}
+          </div>
         </div>
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-3">
           <div className="font-medium mb-2">Activity by Day</div>

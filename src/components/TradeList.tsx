@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trade } from '../types/trade';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import TradeRowExpander from './TradeRowExpander';
 
 interface TradeListProps {
   trades: Trade[];
@@ -8,6 +9,7 @@ interface TradeListProps {
   onSelectTrade: (trade: Trade) => void;
   onExportTrades: () => void;
   onClearTrades: () => void;
+  onUpdateTrade: (trade: Trade) => void;
 }
 
 type SortField = 'date' | 'symbol' | 'type' | 'size' | 'profit';
@@ -18,7 +20,8 @@ const TradeList: React.FC<TradeListProps> = ({
   selectedTrade,
   onSelectTrade,
   onExportTrades,
-  onClearTrades
+  onClearTrades,
+  onUpdateTrade
 }) => {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -88,12 +91,13 @@ const TradeList: React.FC<TradeListProps> = ({
         
         {/* Sort Info */}
         <div className="text-xs text-gray-400 mb-2 px-2">
-          Click column headers to sort • Currently sorting by: <span className="text-blue-400 font-medium">{sortField}</span> ({sortDirection === 'asc' ? '↑' : '↓'})
+          Click column headers to sort • Click arrow to expand trade details • Currently sorting by: <span className="text-blue-400 font-medium">{sortField}</span> ({sortDirection === 'asc' ? '↑' : '↓'})
         </div>
         
         {/* Table Header */}
         <div className="bg-gray-700 rounded-t-lg p-2 text-sm font-medium grid grid-cols-12 gap-2 text-white">
-          <div 
+          <div className="col-span-1"></div>
+          <div
             className={`col-span-3 cursor-pointer hover:bg-gray-600 p-1 rounded flex items-center justify-between transition-colors ${
               sortField === 'date' ? 'bg-blue-600' : ''
             }`}
@@ -137,7 +141,7 @@ const TradeList: React.FC<TradeListProps> = ({
               sortDirection === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
             )}
           </div>
-          <div 
+          <div
             className={`col-span-3 cursor-pointer hover:bg-gray-600 p-1 rounded flex items-center justify-between transition-colors ${
               sortField === 'profit' ? 'bg-blue-600' : ''
             }`}
@@ -157,40 +161,13 @@ const TradeList: React.FC<TradeListProps> = ({
           {trades.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No trades imported yet</div>
           ) : (
-            sortedTrades.map((trade) => {
-              const date = new Date(trade.close_time || trade.open_time);
-              const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-              const profitClass = trade.profit >= 0 ? 'text-green-400' : 'text-red-400';
-              const typeClass = trade.type === 'buy' ? 'bg-green-600' : 'bg-red-600';
-              const isSelected = selectedTrade?.ticket === trade.ticket;
-              
-              return (
-                <div
-                  key={trade.ticket}
-                  className={`trade-row p-3 border-b border-gray-700 cursor-pointer grid grid-cols-12 gap-2 text-sm hover:bg-gray-700 transition-colors ${
-                    isSelected ? 'bg-blue-600' : ''
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Trade clicked:', trade.ticket); // Debug log
-                    onSelectTrade(trade);
-                  }}
-                >
-                  <div className="col-span-3 truncate text-white">{dateStr}</div>
-                  <div className="col-span-2 font-medium text-white">{trade.symbol}</div>
-                  <div className="col-span-2">
-                    <span className={`${typeClass} text-white text-xs px-2 py-1 rounded uppercase`}>
-                      {trade.type}
-                    </span>
-                  </div>
-                  <div className="col-span-2 text-white">{trade.lot_size}</div>
-                  <div className={`col-span-3 font-medium ${profitClass}`}>
-                    ${trade.profit.toFixed(2)}
-                  </div>
-                </div>
-              );
-            })
+            sortedTrades.map((trade) => (
+              <TradeRowExpander
+                key={trade.ticket}
+                trade={trade}
+                onUpdateTrade={onUpdateTrade}
+              />
+            ))
           )}
         </div>
       </div>

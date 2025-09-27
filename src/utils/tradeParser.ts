@@ -189,12 +189,52 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
       avgRR: 0,
       avgDuration: 0,
       bestSymbol: '',
-      mostTraded: ''
+      mostTraded: '',
+      grossProfit: 0,
+      grossLoss: 0,
+      expectedPayoff: 0,
+      absoluteDrawdown: 0,
+      maximalDrawdown: 0,
+      maximalDrawdownPercent: 0,
+      relativeDrawdown: 0,
+      relativeDrawdownAmount: 0,
+      shortPositions: 0,
+      shortWinRate: 0,
+      longPositions: 0,
+      longWinRate: 0,
+      profitTrades: 0,
+      lossTrades: 0,
+      largestProfitTrade: 0,
+      largestLossTrade: 0,
+      avgProfitTrade: 0,
+      avgLossTrade: 0,
+      maxConsecutiveWins: 0,
+      maxConsecutiveWinsAmount: 0,
+      maxConsecutiveLosses: 0,
+      maxConsecutiveLossesAmount: 0,
+      maxConsecutiveProfitAmount: 0,
+      maxConsecutiveProfitCount: 0,
+      maxConsecutiveLossAmount: 0,
+      maxConsecutiveLossCount: 0,
+      avgConsecutiveWins: 0,
+      avgConsecutiveLosses: 0,
+      depositWithdrawal: 0,
+      creditFacility: 0,
+      closedTradesPL: 0,
+      floatingPL: 0,
+      margin: 0,
+      balance: 0,
+      equity: 0,
+      freeMargin: 0
     };
   }
 
   const winningTrades = trades.filter(t => t.profit > 0);
   const losingTrades = trades.filter(t => t.profit < 0);
+  const shortTrades = trades.filter(t => t.type === 'sell');
+  const longTrades = trades.filter(t => t.type === 'buy');
+  const shortWinningTrades = shortTrades.filter(t => t.profit > 0);
+  const longWinningTrades = longTrades.filter(t => t.profit > 0);
   const totalTrades = trades.length;
   
   // Basic metrics
@@ -208,6 +248,79 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   
   const bestTrade = Math.max(...trades.map(t => t.profit));
   const worstTrade = Math.min(...trades.map(t => t.profit));
+  
+  // Enhanced metrics
+  const netPnl = trades.reduce((sum, trade) => sum + trade.profit, 0);
+  const expectedPayoff = totalTrades > 0 ? netPnl / totalTrades : 0;
+  
+  // Calculate drawdown metrics
+  const sortedTrades = [...trades].sort((a, b) => new Date(a.open_time).getTime() - new Date(b.open_time).getTime());
+  let runningBalance = 1000; // Assume starting balance
+  let peak = runningBalance;
+  let maxDrawdown = 0;
+  let maxDrawdownPercent = 0;
+  
+  sortedTrades.forEach(trade => {
+    runningBalance += trade.profit;
+    if (runningBalance > peak) {
+      peak = runningBalance;
+    }
+    const drawdown = peak - runningBalance;
+    const drawdownPercent = peak > 0 ? (drawdown / peak) * 100 : 0;
+    
+    if (drawdown > maxDrawdown) {
+      maxDrawdown = drawdown;
+      maxDrawdownPercent = drawdownPercent;
+    }
+  });
+  
+  // Calculate consecutive wins/losses
+  let currentWinStreak = 0;
+  let currentLossStreak = 0;
+  let maxWinStreak = 0;
+  let maxLossStreak = 0;
+  let maxWinStreakAmount = 0;
+  let maxLossStreakAmount = 0;
+  let currentWinAmount = 0;
+  let currentLossAmount = 0;
+  let winStreaks: number[] = [];
+  let lossStreaks: number[] = [];
+  
+  sortedTrades.forEach(trade => {
+    if (trade.profit > 0) {
+      currentWinStreak++;
+      currentWinAmount += trade.profit;
+      if (currentLossStreak > 0) {
+        lossStreaks.push(currentLossStreak);
+        currentLossStreak = 0;
+        currentLossAmount = 0;
+      }
+    } else if (trade.profit < 0) {
+      currentLossStreak++;
+      currentLossAmount += trade.profit;
+      if (currentWinStreak > 0) {
+        winStreaks.push(currentWinStreak);
+        if (currentWinStreak > maxWinStreak) {
+          maxWinStreak = currentWinStreak;
+          maxWinStreakAmount = currentWinAmount;
+        }
+        currentWinStreak = 0;
+        currentWinAmount = 0;
+      }
+    }
+    
+    if (currentLossStreak > maxLossStreak) {
+      maxLossStreak = currentLossStreak;
+      maxLossStreakAmount = currentLossAmount;
+    }
+  });
+  
+  // Handle final streaks
+  if (currentWinStreak > 0) winStreaks.push(currentWinStreak);
+  if (currentLossStreak > 0) lossStreaks.push(currentLossStreak);
+  
+  const avgConsecutiveWins = winStreaks.length > 0 ? winStreaks.reduce((a, b) => a + b, 0) / winStreaks.length : 0;
+  const avgConsecutiveLosses = lossStreaks.length > 0 ? lossStreaks.reduce((a, b) => a + b, 0) / lossStreaks.length : 0;
   
   // Average R:R
   const rrTrades = trades.filter(t => t.risk_reward_ratio !== null);
@@ -239,7 +352,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   
   return {
     totalTrades,
-    netPnl: trades.reduce((sum, trade) => sum + trade.profit, 0),
+    netPnl,
     winRate,
     profitFactor,
     avgWin,
@@ -249,7 +362,43 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
     avgRR,
     avgDuration,
     bestSymbol,
-    mostTraded
+    mostTraded,
+    grossProfit: totalProfit,
+    grossLoss: totalLoss,
+    expectedPayoff,
+    absoluteDrawdown: maxDrawdown,
+    maximalDrawdown: maxDrawdown,
+    maximalDrawdownPercent,
+    relativeDrawdown: maxDrawdownPercent,
+    relativeDrawdownAmount: maxDrawdown,
+    shortPositions: shortTrades.length,
+    shortWinRate: shortTrades.length > 0 ? (shortWinningTrades.length / shortTrades.length) * 100 : 0,
+    longPositions: longTrades.length,
+    longWinRate: longTrades.length > 0 ? (longWinningTrades.length / longTrades.length) * 100 : 0,
+    profitTrades: winningTrades.length,
+    lossTrades: losingTrades.length,
+    largestProfitTrade: bestTrade,
+    largestLossTrade: worstTrade,
+    avgProfitTrade: avgWin,
+    avgLossTrade: avgLoss,
+    maxConsecutiveWins: maxWinStreak,
+    maxConsecutiveWinsAmount: maxWinStreakAmount,
+    maxConsecutiveLosses: maxLossStreak,
+    maxConsecutiveLossesAmount: Math.abs(maxLossStreakAmount),
+    maxConsecutiveProfitAmount: maxWinStreakAmount,
+    maxConsecutiveProfitCount: maxWinStreak,
+    maxConsecutiveLossAmount: Math.abs(maxLossStreakAmount),
+    maxConsecutiveLossCount: maxLossStreak,
+    avgConsecutiveWins: Math.round(avgConsecutiveWins),
+    avgConsecutiveLosses: Math.round(avgConsecutiveLosses),
+    depositWithdrawal: 0, // Would need to be parsed from statement
+    creditFacility: 0,
+    closedTradesPL: netPnl,
+    floatingPL: 0,
+    margin: 0,
+    balance: runningBalance,
+    equity: runningBalance,
+    freeMargin: runningBalance
   };
 };
 

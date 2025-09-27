@@ -70,6 +70,43 @@ export interface TradeStats {
   avgDuration: number;
   bestSymbol: string;
   mostTraded: string;
+  // Enhanced MT statement metrics
+  grossProfit: number;
+  grossLoss: number;
+  expectedPayoff: number;
+  absoluteDrawdown: number;
+  maximalDrawdown: number;
+  maximalDrawdownPercent: number;
+  relativeDrawdown: number;
+  relativeDrawdownAmount: number;
+  shortPositions: number;
+  shortWinRate: number;
+  longPositions: number;
+  longWinRate: number;
+  profitTrades: number;
+  lossTrades: number;
+  largestProfitTrade: number;
+  largestLossTrade: number;
+  avgProfitTrade: number;
+  avgLossTrade: number;
+  maxConsecutiveWins: number;
+  maxConsecutiveWinsAmount: number;
+  maxConsecutiveLosses: number;
+  maxConsecutiveLossesAmount: number;
+  maxConsecutiveProfitAmount: number;
+  maxConsecutiveProfitCount: number;
+  maxConsecutiveLossAmount: number;
+  maxConsecutiveLossCount: number;
+  avgConsecutiveWins: number;
+  avgConsecutiveLosses: number;
+  depositWithdrawal: number;
+  creditFacility: number;
+  closedTradesPL: number;
+  floatingPL: number;
+  margin: number;
+  balance: number;
+  equity: number;
+  freeMargin: number;
 }
 
 export interface MoodStats {
