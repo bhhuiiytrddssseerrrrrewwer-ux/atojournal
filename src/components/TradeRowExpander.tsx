@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Trade, JournalEntry } from '../types/trade';
-import { ChevronDown, ChevronRight, Edit3, Save, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, CreditCard as Edit3, Save, X } from 'lucide-react';
 import { formatDuration, formatRR } from '../utils/tradeParser';
 
 interface TradeRowExpanderProps {
