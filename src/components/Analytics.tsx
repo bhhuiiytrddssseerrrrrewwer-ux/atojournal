@@ -54,25 +54,25 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Gross Profit:</span>
-                <span className="text-green-400">${stats.grossProfit.toFixed(2)}</span>
+                <span className="text-green-400">${(stats.grossProfit || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Gross Loss:</span>
-                <span className="text-red-400">${stats.grossLoss.toFixed(2)}</span>
+                <span className="text-red-400">${(stats.grossLoss || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t border-gray-600 pt-2">
                 <span className="text-gray-300 font-medium">Total Net Profit:</span>
-                <span className={`font-medium ${stats.netPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  ${stats.netPnl.toFixed(2)}
+                <span className={`font-medium ${(stats.netPnl || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  ${(stats.netPnl || 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Profit Factor:</span>
-                <span className="text-white">{stats.profitFactor.toFixed(2)}</span>
+                <span className="text-white">{(stats.profitFactor || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Expected Payoff:</span>
-                <span className="text-white">${stats.expectedPayoff.toFixed(2)}</span>
+                <span className="text-white">${(stats.expectedPayoff || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -82,18 +82,18 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Absolute Drawdown:</span>
-                <span className="text-red-400">${stats.absoluteDrawdown.toFixed(2)}</span>
+                <span className="text-red-400">${(stats.absoluteDrawdown || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Maximal Drawdown:</span>
                 <span className="text-red-400">
-                  ${stats.maximalDrawdown.toFixed(2)} ({stats.maximalDrawdownPercent.toFixed(2)}%)
+                  ${(stats.maximalDrawdown || 0).toFixed(2)} ({(stats.maximalDrawdownPercent || 0).toFixed(2)}%)
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Relative Drawdown:</span>
                 <span className="text-red-400">
-                  {stats.relativeDrawdown.toFixed(2)}% (${stats.relativeDrawdownAmount.toFixed(2)})
+                  {(stats.relativeDrawdown || 0).toFixed(2)}% (${(stats.relativeDrawdownAmount || 0).toFixed(2)})
                 </span>
               </div>
             </div>
@@ -104,20 +104,20 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Balance:</span>
-                <span className="text-white">${stats.balance.toFixed(2)}</span>
+                <span className="text-white">${(stats.balance || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Equity:</span>
-                <span className="text-white">${stats.equity.toFixed(2)}</span>
+                <span className="text-white">${(stats.equity || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Free Margin:</span>
-                <span className="text-white">${stats.freeMargin.toFixed(2)}</span>
+                <span className="text-white">${(stats.freeMargin || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Closed Trade P/L:</span>
-                <span className={stats.closedTradesPL >= 0 ? 'text-green-400' : 'text-red-400'}>
-                  ${stats.closedTradesPL.toFixed(2)}
+                <span className={(stats.closedTradesPL || 0) >= 0 ? 'text-green-400' : 'text-red-400'}>
+                  ${(stats.closedTradesPL || 0).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -131,23 +131,23 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Total Trades:</span>
-                <span className="text-white">{stats.totalTrades}</span>
+                <span className="text-white">{stats.totalTrades || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Short Positions:</span>
-                <span className="text-white">{stats.shortPositions} ({stats.shortWinRate.toFixed(2)}% won)</span>
+                <span className="text-white">{stats.shortPositions || 0} ({(stats.shortWinRate || 0).toFixed(2)}% won)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Long Positions:</span>
-                <span className="text-white">{stats.longPositions} ({stats.longWinRate.toFixed(2)}% won)</span>
+                <span className="text-white">{stats.longPositions || 0} ({(stats.longWinRate || 0).toFixed(2)}% won)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Profit Trades:</span>
-                <span className="text-green-400">{stats.profitTrades} ({((stats.profitTrades/stats.totalTrades)*100).toFixed(2)}%)</span>
+                <span className="text-green-400">{stats.profitTrades || 0} ({(((stats.profitTrades || 0)/(stats.totalTrades || 1))*100).toFixed(2)}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Loss Trades:</span>
-                <span className="text-red-400">{stats.lossTrades} ({((stats.lossTrades/stats.totalTrades)*100).toFixed(2)}%)</span>
+                <span className="text-red-400">{stats.lossTrades || 0} ({(((stats.lossTrades || 0)/(stats.totalTrades || 1))*100).toFixed(2)}%)</span>
               </div>
             </div>
           </div>
@@ -157,27 +157,27 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Max Consecutive Wins:</span>
-                <span className="text-green-400">{stats.maxConsecutiveWins} (${stats.maxConsecutiveWinsAmount.toFixed(2)})</span>
+                <span className="text-green-400">{stats.maxConsecutiveWins || 0} (${(stats.maxConsecutiveWinsAmount || 0).toFixed(2)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Max Consecutive Losses:</span>
-                <span className="text-red-400">{stats.maxConsecutiveLosses} (${stats.maxConsecutiveLossesAmount.toFixed(2)})</span>
+                <span className="text-red-400">{stats.maxConsecutiveLosses || 0} (${(stats.maxConsecutiveLossesAmount || 0).toFixed(2)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Avg Consecutive Wins:</span>
-                <span className="text-white">{stats.avgConsecutiveWins}</span>
+                <span className="text-white">{stats.avgConsecutiveWins || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Avg Consecutive Losses:</span>
-                <span className="text-white">{stats.avgConsecutiveLosses}</span>
+                <span className="text-white">{stats.avgConsecutiveLosses || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Largest Profit Trade:</span>
-                <span className="text-green-400">${stats.largestProfitTrade.toFixed(2)}</span>
+                <span className="text-green-400">${(stats.largestProfitTrade || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Largest Loss Trade:</span>
-                <span className="text-red-400">${stats.largestLossTrade.toFixed(2)}</span>
+                <span className="text-red-400">${(stats.largestLossTrade || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
