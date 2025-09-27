@@ -271,6 +271,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
     if (drawdown > maxDrawdown) {
       maxDrawdown = drawdown;
       maxDrawdownPercent = drawdownPercent;
+      maxDrawdownPercent = drawdownPercent;
     }
   });
   
