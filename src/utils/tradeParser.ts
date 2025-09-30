@@ -184,7 +184,19 @@ export const parseMetaTraderHTML = (html: string, fileName: string): Trade[] => 
   for (let i = 1; i < rows.length; i++) {
     const cells = rows[i].querySelectorAll('td');
     if (cells.length < 8) continue; // Skip incomplete rows
-    
+
+    // Skip cancelled orders and balance entries
+    const profitCell = cells[13];
+    if (profitCell && profitCell.textContent?.toLowerCase().includes('cancelled')) {
+      continue; // Skip cancelled orders
+    }
+
+    const typeCell = cells[2];
+    const typeText = typeCell?.textContent?.trim().toLowerCase() || '';
+    if (typeText.includes('balance') || typeText.includes('limit')) {
+      continue; // Skip balance entries and pending limit orders
+    }
+
     try {
       const trade = parseTradeRow(cells, accountId, fileName);
       if (trade && (trade.type === 'buy' || trade.type === 'sell')) {
@@ -278,8 +290,8 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   const bestTrade = Math.max(...trades.map(t => t.profit));
   const worstTrade = Math.min(...trades.map(t => t.profit));
   
-  // Enhanced metrics
-  const netPnl = trades.reduce((sum, trade) => sum + trade.profit, 0);
+  // Enhanced metrics - include commission, swap, and taxes
+  const netPnl = trades.reduce((sum, trade) => sum + trade.profit + trade.commission + trade.swap + trade.taxes, 0);
   const expectedPayoff = totalTrades > 0 ? netPnl / totalTrades : 0;
   
   // Calculate drawdown metrics
@@ -290,13 +302,13 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   let maximalDrawdownPercentValue = 0;
   
   sortedTrades.forEach(trade => {
-    runningBalance += trade.profit;
+    runningBalance += trade.profit + trade.commission + trade.swap + trade.taxes;
     if (runningBalance > peak) {
       peak = runningBalance;
     }
     const drawdown = peak - runningBalance;
     const drawdownPercent = peak > 0 ? (drawdown / peak) * 100 : 0;
-    
+
     if (drawdown > maxDrawdown) {
       maxDrawdown = drawdown;
       maximalDrawdownPercentValue = drawdownPercent;

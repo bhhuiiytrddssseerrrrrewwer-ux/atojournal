@@ -27,10 +27,10 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
     let peak = runningBalance;
     
     sortedTrades.forEach((trade, index) => {
-      runningBalance += trade.profit;
+      runningBalance += trade.profit + trade.commission + trade.swap + trade.taxes;
       if (runningBalance > peak) peak = runningBalance;
       const drawdown = peak - runningBalance;
-      
+
       data.push({
         time: new Date(trade.close_time || trade.open_time).toLocaleDateString(),
         balance: runningBalance,
