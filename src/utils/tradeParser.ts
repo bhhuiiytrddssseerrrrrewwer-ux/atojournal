@@ -175,6 +175,8 @@ export const parseMetaTraderHTML = (html: string, fileName: string): Trade[] => 
   return trades;
 };
 
+export const STARTING_BALANCE = 1000;
+
 export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   if (trades.length === 0) {
     return {
@@ -223,9 +225,9 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
       closedTradesPL: 0,
       floatingPL: 0,
       margin: 0,
-      balance: 0,
-      equity: 0,
-      freeMargin: 0
+      balance: STARTING_BALANCE,
+      equity: STARTING_BALANCE,
+      freeMargin: STARTING_BALANCE
     };
   }
 
@@ -255,7 +257,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   
   // Calculate drawdown metrics
   const sortedTrades = [...trades].sort((a, b) => new Date(a.open_time).getTime() - new Date(b.open_time).getTime());
-  let runningBalance = 1000; // Assume starting balance
+  let runningBalance = STARTING_BALANCE;
   let peak = runningBalance;
   let maxDrawdown = 0;
   let maximalDrawdownPercentValue = 0;

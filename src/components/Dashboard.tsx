@@ -37,7 +37,11 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <div className="text-gray-400 text-sm">Balance</div>
+          <div className="text-2xl font-semibold text-blue-400">${numberFmt(state.stats.balance)}</div>
+        </div>
         <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
           <div className="text-gray-400 text-sm">Net P&L</div>
           <div className={`text-2xl font-semibold ${state.stats.netPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>${numberFmt(state.stats.netPnl)}</div>

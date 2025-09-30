@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { TradeStats, MoodStats } from '../types/trade';
-import { formatDuration } from '../utils/tradeParser';
+import { formatDuration, STARTING_BALANCE } from '../utils/tradeParser';
 import { useTradeContext } from '../context/TradeContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -18,11 +18,11 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
 
   // Real equity curve from time-sorted trades
   const equityData = useMemo(() => {
-    const sortedTrades = [...state.trades].sort((a, b) => 
+    const sortedTrades = [...state.trades].sort((a, b) =>
       new Date(a.open_time).getTime() - new Date(b.open_time).getTime()
     );
-    
-    let runningBalance = 1000; // Starting balance
+
+    let runningBalance = STARTING_BALANCE;
     const data = [{ time: 'Start', balance: runningBalance, drawdown: 0 }];
     let peak = runningBalance;
     
