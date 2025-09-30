@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { TradeStats, MoodStats } from '../types/trade';
-import { formatDuration, STARTING_BALANCE } from '../utils/tradeParser';
+import { formatDuration, getStartingBalance } from '../utils/tradeParser';
 import { useTradeContext } from '../context/TradeContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -22,7 +22,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ stats, moodStats }) => {
       new Date(a.open_time).getTime() - new Date(b.open_time).getTime()
     );
 
-    let runningBalance = STARTING_BALANCE;
+    let runningBalance = getStartingBalance();
     const data = [{ time: 'Start', balance: runningBalance, drawdown: 0 }];
     let peak = runningBalance;
     

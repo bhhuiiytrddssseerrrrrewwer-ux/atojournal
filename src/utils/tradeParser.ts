@@ -107,9 +107,10 @@ export const parseMetaTraderHTML = (html: string, fileName: string): Trade[] => 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   const trades: Trade[] = [];
-  
-  // Find account information
+
+  // Find account information and deposit/withdrawal
   let accountId = 'Unknown';
+  let depositWithdrawal = 0;
   const accountInfo = doc.querySelector('table');
   if (accountInfo) {
     const rows = accountInfo.querySelectorAll('tr');
@@ -117,9 +118,31 @@ export const parseMetaTraderHTML = (html: string, fileName: string): Trade[] => 
       const cells = row.querySelectorAll('td');
       if (cells.length >= 2 && cells[0].textContent?.includes('Account')) {
         accountId = cells[1].textContent?.trim() || 'Unknown';
-        break;
       }
     }
+  }
+
+  // Find deposit/withdrawal from summary section
+  const allTables = doc.querySelectorAll('table');
+  for (const table of allTables) {
+    const prevElement = table.previousElementSibling;
+    if (prevElement && prevElement.textContent?.includes('Summary')) {
+      const summaryRows = table.querySelectorAll('tr');
+      for (const row of summaryRows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 2 && cells[0].textContent?.includes('Deposit/Withdrawal')) {
+          const value = parseFloat(cells[1].textContent?.trim() || '0');
+          if (!isNaN(value)) depositWithdrawal = value;
+          break;
+        }
+      }
+      break;
+    }
+  }
+
+  // Store deposit as starting balance in global variable
+  if (depositWithdrawal > 0) {
+    (window as any).__STARTING_BALANCE__ = depositWithdrawal;
   }
   
   // Find closed transactions table
@@ -175,6 +198,10 @@ export const parseMetaTraderHTML = (html: string, fileName: string): Trade[] => 
   return trades;
 };
 
+export const getStartingBalance = (): number => {
+  return (window as any).__STARTING_BALANCE__ || 1000;
+};
+
 export const STARTING_BALANCE = 1000;
 
 export const calculateTradeStats = (trades: Trade[]): TradeStats => {
@@ -225,9 +252,9 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
       closedTradesPL: 0,
       floatingPL: 0,
       margin: 0,
-      balance: STARTING_BALANCE,
-      equity: STARTING_BALANCE,
-      freeMargin: STARTING_BALANCE
+      balance: getStartingBalance(),
+      equity: getStartingBalance(),
+      freeMargin: getStartingBalance()
     };
   }
 
@@ -257,7 +284,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
   
   // Calculate drawdown metrics
   const sortedTrades = [...trades].sort((a, b) => new Date(a.open_time).getTime() - new Date(b.open_time).getTime());
-  let runningBalance = STARTING_BALANCE;
+  let runningBalance = getStartingBalance();
   let peak = runningBalance;
   let maxDrawdown = 0;
   let maximalDrawdownPercentValue = 0;
@@ -393,7 +420,7 @@ export const calculateTradeStats = (trades: Trade[]): TradeStats => {
     maxConsecutiveLossCount: maxLossStreak,
     avgConsecutiveWins: Math.round(avgConsecutiveWins),
     avgConsecutiveLosses: Math.round(avgConsecutiveLosses),
-    depositWithdrawal: 0, // Would need to be parsed from statement
+    depositWithdrawal: getStartingBalance(),
     creditFacility: 0,
     closedTradesPL: netPnl,
     floatingPL: 0,
